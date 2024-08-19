@@ -2,105 +2,105 @@
 #include <math.h>
 #define epsilon 0.0000000001
 
-enum number_roots
+enum NUMBER_ROOTS
 {
-    no_roots,
-    one_root,
-    two_roots,
-    infinity_roots
+    NO_ROOTS,
+    ONE_ROOT,
+    TWO_ROOTS,
+    INFINITY_ROOTS
 };
 
-enum number_roots solve_square(double a, double b, double c, double* x1, double* x2);
-enum number_roots solve_linal(double a, double b, double* x1, double* x2);
-enum number_roots solve_standart_square(double a, double b, double c, double* x1, double* x2);
-double data_verification();
+enum NUMBER_ROOTS solve_square(double a, double b, double c, double *x1, double *x2);
+enum NUMBER_ROOTS solve_linal(double a, double b, double *x1, double *x2);
+enum NUMBER_ROOTS solve_standart_square(double a, double b, double c, double *x1, double *x2);
+double receive_data();
 
 int main()
 {
     double a, b, c, x1, x2;
-    enum number_roots roots;
+    enum NUMBER_ROOTS ROOTS;
     puts("Please enter the coefficient a");
-    a = data_verification();
+    a = receive_data();
     puts("Please enter the coefficient b");
-    b = data_verification();
+    b = receive_data();
     puts("Please enter the coefficient c");
-    c = data_verification();
-    roots = solve_square(a, b, c, &x1, &x2);
-    switch (roots)
+    c = receive_data();
+    ROOTS = solve_square(a, b, c, &x1, &x2);
+    switch (ROOTS)
     {
-        case no_roots:
+        case NO_ROOTS:
             puts("This equation has no roots");
             break;
-        case infinity_roots:
+        case INFINITY_ROOTS:
             puts("Any number is the root of this equation");
             break;
-        case one_root:
+        case ONE_ROOT:
             printf("This equation has one root: %lf", x1);
             break;
-        case two_roots:
+        case TWO_ROOTS:
             printf("This equation has two root\nThe first root: %lf\nThe second root: %lf", x1, x2);
             break;
     }
 }
 
-enum number_roots solve_square(double a, double b, double c, double* x1, double* x2)
+enum NUMBER_ROOTS solve_square(double a, double b, double c, double *x1, double *x2)
 {
-    enum number_roots roots;
+    enum NUMBER_ROOTS ROOTS;
     if ( a == 0.0 )
     {
-        roots = solve_linal(b, c, x1, x2);
+        ROOTS = solve_linal(b, c, x1, x2);
     }
     else
     {
-        roots = solve_standart_square(a, b, c, x1, x2);
+        ROOTS = solve_standart_square(a, b, c, x1, x2);
     }
-    return roots;
+    return ROOTS;
 }
 
-enum number_roots solve_linal(double a, double b, double* x1, double* x2)
+enum NUMBER_ROOTS solve_linal(double a, double b, double *x1, double *x2)
 {
     if ( a == 0.0 )
     {
         if ( b == 0.0 )
         {
-            return infinity_roots;
+            return INFINITY_ROOTS;
         }
         else
         {
-            return no_roots;
+            return NO_ROOTS;
         }
     }
     else
     {
         *x1 = -b/a;
-        return one_root;
+        return ONE_ROOT;
     }
 }
 
-enum number_roots solve_standart_square(double a, double b, double c, double* x1, double* x2)
+enum NUMBER_ROOTS solve_standart_square(double a, double b, double c, double *x1, double *x2)
 {
     double D = 1 - 4*a*c/b/b;
     if ( D <= -epsilon )
     {
-        return no_roots;
+        return NO_ROOTS;
     }
     else
     {
         if ( D <= epsilon )
         {
             *x1 = -b/2/a;
-            return one_root;
+            return ONE_ROOT;
         }
         else
         {
             *x1 = b*(-1.0 - sqrt(D))/2/a;
             *x2 = b*(-1.0 + sqrt(D))/2/a;
-            return two_roots;
+            return TWO_ROOTS;
         }
     }
 }
 
-double data_verification()
+double receive_data()
 {
     int b;
     double scan;
