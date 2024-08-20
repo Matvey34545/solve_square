@@ -1,67 +1,61 @@
 #include <stdio.h>
 #include <math.h>
-#define epsilon 0.0000000001
+#include <assert.h>
 
-enum NUMBER_ROOTS
+const double EPSILON = 0.0000000001;
+
+enum NumberOfRoots
 {
-    NO_ROOTS,
-    ONE_ROOT,
-    TWO_ROOTS,
-    INFINITY_ROOTS
+    NO_ROOTS       = 0,
+    ONE_ROOT       = 1,
+    TWO_ROOTS      = 2,
+    INFINITY_ROOTS = 3
 };
 
-enum NUMBER_ROOTS solve_square(double a, double b, double c, double *x1, double *x2);
-enum NUMBER_ROOTS solve_linal(double a, double b, double *x1, double *x2);
-enum NUMBER_ROOTS solve_standart_square(double a, double b, double c, double *x1, double *x2);
-double receive_data();
+NumberOfRoots solve_square(double a, double b, double c, double *x1, double *x2);
+NumberOfRoots solve_linal(double a, double b, double *x1);
+NumberOfRoots solve_standart_square(double a, double b, double c, double *x1, double *x2);
+double receive_coefficient();
+void enter_coefficients(double *a, double *b, double *c);
+void output_roots(double x1, double x2, NumberOfRoots number_of_r4oots);
+int comprasion_with_zero(double epsilon, double a);
+int promotes_input(char *s);
 
 int main()
 {
-    double a, b, c, x1, x2;
-    enum NUMBER_ROOTS ROOTS;
-    puts("Please enter the coefficient a");
-    a = receive_data();
-    puts("Please enter the coefficient b");
-    b = receive_data();
-    puts("Please enter the coefficient c");
-    c = receive_data();
-    ROOTS = solve_square(a, b, c, &x1, &x2);
-    switch (ROOTS)
-    {
-        case NO_ROOTS:
-            puts("This equation has no roots");
-            break;
-        case INFINITY_ROOTS:
-            puts("Any number is the root of this equation");
-            break;
-        case ONE_ROOT:
-            printf("This equation has one root: %lf", x1);
-            break;
-        case TWO_ROOTS:
-            printf("This equation has two root\nThe first root: %lf\nThe second root: %lf", x1, x2);
-            break;
-    }
+    double a  = 0;
+    double b  = 0;
+    double c  = 0;
+    double x1 = 0;
+    double x2 = 0;
+    enum NumberOfRoots number_of_roots;
+    enter_coefficients(&a, &b, &c);
+    number_of_roots = solve_square(a, b, c, &x1, &x2);
+    output_roots(x1, x2, number_of_roots);
 }
 
-enum NUMBER_ROOTS solve_square(double a, double b, double c, double *x1, double *x2)
+NumberOfRoots solve_square(double a, double b, double c, double *x1, double *x2)
 {
-    enum NUMBER_ROOTS ROOTS;
-    if ( a == 0.0 )
+    assert(x1 != NULL);
+    assert(x2 != NULL);
+    assert(x1 != x2);
+    enum NumberOfRoots number_of_roots;
+    if ( comprasion_with_zero(EPSILON, a) == 0 )
     {
-        ROOTS = solve_linal(b, c, x1, x2);
+        number_of_roots = solve_linal(b, c, x1);
     }
     else
     {
-        ROOTS = solve_standart_square(a, b, c, x1, x2);
+        number_of_roots = solve_standart_square(a, b, c, x1, x2);
     }
-    return ROOTS;
+    return number_of_roots;
 }
 
-enum NUMBER_ROOTS solve_linal(double a, double b, double *x1, double *x2)
+NumberOfRoots solve_linal(double a, double b, double *x1)
 {
-    if ( a == 0.0 )
+    if ( comprasion_with_zero(EPSILON, a) == 0 )
     {
-        if ( b == 0.0 )
+        if ( comprasion_with_zero(EPSILON, a) == 0 )
         {
             return INFINITY_ROOTS;
         }
@@ -77,42 +71,124 @@ enum NUMBER_ROOTS solve_linal(double a, double b, double *x1, double *x2)
     }
 }
 
-enum NUMBER_ROOTS solve_standart_square(double a, double b, double c, double *x1, double *x2)
+NumberOfRoots solve_standart_square(double a, double b, double c, double *x1, double *x2)
 {
     double D = 1 - 4*a*c/b/b;
-    if ( D <= -epsilon )
+    if ( comprasion_with_zero(EPSILON, D) == -1 )
     {
         return NO_ROOTS;
     }
     else
     {
-        if ( D <= epsilon )
+        if ( comprasion_with_zero(EPSILON, D) == 0 )
         {
             *x1 = -b/2/a;
             return ONE_ROOT;
         }
         else
         {
-            *x1 = b*(-1.0 - sqrt(D))/2/a;
-            *x2 = b*(-1.0 + sqrt(D))/2/a;
+            double sqrt_D = sqrt(D);
+            *x1 = b*(-1.0 - sqrt_D)/2/a;
+            *x2 = b*(-1.0 + sqrt_D)/2/a;
             return TWO_ROOTS;
         }
     }
 }
 
-double receive_data()
+double receive_coefficient()
 {
-    int b;
+    int result_scanf;
+    int number_unread_symbols;
     double scan;
-    b = scanf("%lf", &scan);
-    while ( b == 0 )
+    while ( number_unread_symbols > 0 )
     {
-        puts("Try again. You must enter a floating point number\n");
-        getchar();
-        b = scanf("%lf", &scan);
+        number_unread_symbols = 0;
+        result_scanf = scanf("%lf", &scan);
+        if ( result_scanf == 0 )
+        {
+            number_unread_symbols++;
+            number_unread_symbols += promotes_input("\n");
+        }
+        else
+        {
+            number_unread_symbols += promotes_input("\n");
+        }
+        if ( number_unread_symbols > 0 )
+            puts("Error. You must enter a number");
     }
     return scan;
 }
+
+void enter_coefficients(double *a, double *b, double *c)
+{
+    puts("Please enter the coefficient a");
+    *a = receive_coefficient();
+    puts("Please enter the coefficient b");
+    *b = receive_coefficient();
+    puts("Please enter the coefficient c");
+    *c = receive_coefficient();
+}
+
+void output_roots(double x1, double x2, NumberOfRoots number_of_roots)
+{
+    switch (number_of_roots)
+    {
+        case NO_ROOTS:
+            puts("This equation has no roots");
+            break;
+        case INFINITY_ROOTS:
+            puts("Any number is the root of this equation");
+            break;
+        case ONE_ROOT:
+            printf("This equation has one root: %lf", x1);
+            break;
+        case TWO_ROOTS:
+            printf("This equation has two root\nThe first root: %lf\nThe second root: %lf", x1, x2);
+            break;
+        default:
+            puts("Error");
+            break;
+    }
+}
+
+int comprasion_with_zero(double epsilon, double a)
+{
+    if ( a >= epsilon )
+        return 1;
+
+    if ( a >= -epsilon )
+        return 0;
+
+    return -1;
+}
+
+// doxygen!
+int promotes_input(char *s)
+{
+    int symbol = 0;
+    bool is_symbol_not_found = true;
+    int i = 0;
+    int number_read_symbols = 0;
+    while ( is_symbol_not_found )
+    {
+        i = 0;
+        symbol = getchar();
+        while ( s[i] != '\0' )
+        {
+            if ( symbol == s[i] )
+            {
+                is_symbol_not_found = false;
+                break;
+            }
+            i++;
+        }
+        if ( is_symbol_not_found )
+            number_read_symbols++;
+
+    }
+    return number_read_symbols;
+}
+
 
 
 
