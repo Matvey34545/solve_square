@@ -30,26 +30,39 @@ static int comprasion_roots(const Roots *roots_1, const Roots *roots_2);
 void unit_test_solve_square()
 {
     bool result_test = true;
-    CoefficientesAndRoots expected_answer_for_test[] =
-    {
-        {{0.0,  0.0,  0.0},  {INFINITY_ROOTS, 0.0,         0.0}},
-        {{0.0,  0.0,  1.0},  {NO_ROOTS,       0.0,         0.0}},
-        {{0.0,  1.0, -3.0},  {ONE_ROOT,       3.0,         0.0}},
-        {{1.0,  2.0,  1.0},  {ONE_ROOT,      -1.0,         0.0}},
-        {{1.0,  2.0,  4.0},  {NO_ROOTS,       0.0,         0.0}},
-        {{1.0,  5.0,  0.0},  {TWO_ROOTS,     -5.0,         0.0}},
-        {{2.25, 4.5,  2.25}, {ONE_ROOT,      -1.0,         0.0}},
-        {{2.0,  4.8,  0.0},  {TWO_ROOTS,     -2.4,         0.0}},
-        {{0.0,  2.71, 5.42}, {ONE_ROOT,      -2.0,         0.0}}
-    };
+    char* filename = "unit_test.txt";
+    FILE *fp;
+    fp = fopen(filename, "r");
 
-    size_t quantity_test = sizeof(expected_answer_for_test) / sizeof(CoefficientesAndRoots);
-    for ( size_t i = 0; i < quantity_test && result_test; ++i )
+    int c;
+    int j = 0;
+    int temp = 0;
+    while ( fscanf(fp, "%lf", &temp) != EOF )
+    {
+        j++;
+    }
+
+    const int quantity_test = j / 6;
+    CoefficientesAndRoots expected_answer_for_test[quantity_test];
+
+    fp = fopen(filename, "r");
+    for (int i = 0 ; fscanf(fp, "%lf", &(expected_answer_for_test[i].coefficientes.a)) != EOF; ++i)
+    {
+        fscanf(fp, "%lf", &(expected_answer_for_test[i].coefficientes.b));
+        fscanf(fp, "%lf", &(expected_answer_for_test[i].coefficientes.c));
+        fscanf(fp, "%d", &(expected_answer_for_test[i].roots.number_of_roots));
+        fscanf(fp, "%lf", &(expected_answer_for_test[i].roots.x1));
+        fscanf(fp, "%lf", &(expected_answer_for_test[i].roots.x2));
+    }
+    fclose(fp);
+    printf("%d\n", quantity_test);
+    for ( int i = 0; i < quantity_test; ++i )
     {
         result_test = test_solve_square(i + 1, &expected_answer_for_test[i]);
+        if (result_test)
+            printf("#TEST %d/%d PASSED\n", i + 1, quantity_test);
+
     }
-    if (result_test)
-        puts("Success\n");
 }
 
 static bool test_solve_square(int number_test, const CoefficientesAndRoots *expected_answer_for_test)
