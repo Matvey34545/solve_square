@@ -17,7 +17,7 @@ struct CoefficientesAndRoots
 \param[out] expected_answer_for_test Коэффиценты и ожидаемые ответы для этих коэффицентов
 \return Если тест пройден true, если нет - false
 */
-static bool test_solve_square(int number_test, const CoefficientesAndRoots *expected_answer_for_test);
+static bool test_solve_square(const CoefficientesAndRoots *expected_answer_for_test, Roots* roots);
 
 /*!
 Сравнивает корни квадратного уравнения
@@ -30,61 +30,44 @@ static int comprasion_roots(const Roots *roots_1, const Roots *roots_2);
 void unit_test_solve_square()
 {
     bool result_test = true;
-    char* filename = "unit_test.txt";
-    FILE *fp;
-    fp = fopen(filename, "r");
-
-    int c;
-    int j = 0;
-    int temp = 0;
-    while ( fscanf(fp, "%lf", &temp) != EOF )
-    {
-        j++;
-    }
-
-    const int quantity_test = j / 6;
-    CoefficientesAndRoots expected_answer_for_test[quantity_test];
-
-    fp = fopen(filename, "r");
-    for (int i = 0 ; fscanf(fp, "%lf", &(expected_answer_for_test[i].coefficientes.a)) != EOF; ++i)
-    {
-        fscanf(fp, "%lf", &(expected_answer_for_test[i].coefficientes.b));
-        fscanf(fp, "%lf", &(expected_answer_for_test[i].coefficientes.c));
-        fscanf(fp, "%d", &(expected_answer_for_test[i].roots.number_of_roots));
-        fscanf(fp, "%lf", &(expected_answer_for_test[i].roots.x1));
-        fscanf(fp, "%lf", &(expected_answer_for_test[i].roots.x2));
-    }
-    fclose(fp);
-    printf("%d\n", quantity_test);
-    for ( int i = 0; i < quantity_test; ++i )
-    {
-        result_test = test_solve_square(i + 1, &expected_answer_for_test[i]);
-        if (result_test)
-            printf("#TEST %d/%d PASSED\n", i + 1, quantity_test);
-
-    }
-}
-
-static bool test_solve_square(int number_test, const CoefficientesAndRoots *expected_answer_for_test)
-{
+    const char* filename = (const char*)"unit_test.txt";
+    FILE *fp = fopen(filename, "r");;
+    CoefficientesAndRoots expected_answer_for_test = {{0.0, 0.0, 0.0}, {NO_ROOTS, 0.0, 0.0}};
     Roots roots = {NO_ROOTS, 0.0, 0.0};
 
-    assert(expected_answer_for_test != NULL, "NULLPTR");
-    assert(comprasion_roots(&roots, &expected_answer_for_test->roots) != -1, "Error comparison");
+    for ( int number_test = 0; fscanf(fp, "%lf", &(expected_answer_for_test.coefficientes.a)) != EOF; ++number_test )
+    {
+        fscanf(fp, "%lf", &(expected_answer_for_test.coefficientes.b));
+        fscanf(fp, "%lf", &(expected_answer_for_test.coefficientes.c));
+        fscanf(fp, "%d", (int*)&(expected_answer_for_test.roots.number_of_roots));
+        fscanf(fp, "%lf", &(expected_answer_for_test.roots.x1));
+        fscanf(fp, "%lf", &(expected_answer_for_test.roots.x2));
+        result_test = test_solve_square(&expected_answer_for_test, &roots);
+        if (result_test)
+            printf("#TEST %d PASSED\n", number_test + 1);
 
-    solve_square(&expected_answer_for_test->coefficientes, &roots);
-    if ( !comprasion_roots(&roots, &expected_answer_for_test->roots) )
-    {
-        printf("Error in %d test.\nExpected: ", number_test);
-        output_roots(&expected_answer_for_test->roots);
-        puts("Real: ");
-        output_roots(&roots);
+        else
+        {
+            printf("Error in %d test.\nExpected: ", number_test + 1);
+            output_roots(&expected_answer_for_test.roots);
+            puts("Real: ");
+            output_roots(&roots);
+
+        }
+    }
+    fclose(fp);
+}
+
+static bool test_solve_square(const CoefficientesAndRoots *expected_answer_for_test, Roots* roots)
+{
+    assert(expected_answer_for_test != NULL, "NULLPTR");
+    assert(comprasion_roots(roots, &expected_answer_for_test->roots) != -1, "Error comparison");
+
+    solve_square(&expected_answer_for_test->coefficientes, roots);
+    if ( !comprasion_roots(roots, &expected_answer_for_test->roots) )
         return false;
-    }
-    else
-    {
-        return true;
-    }
+
+    return true;
 }
 
 static int comprasion_roots(const Roots *roots_1, const Roots *roots_2)
