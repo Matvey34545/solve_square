@@ -1,8 +1,8 @@
 #include "unit_test.h"
 #include "comparison_double.h"
+#include "my_assert.h"
 
 #include <stdio.h>
-#include <assert.h>
 #include <stdlib.h>
 
 struct CoefficientesAndRoots
@@ -32,32 +32,37 @@ void unit_test_solve_square()
     bool result_test = true;
     CoefficientesAndRoots expected_answer_for_test[] =
     {
-        {{0.0, 0.0,  0.0}, {INFINITY_ROOTS, 0.0, 0.0}},
-        {{0.0, 0.0,  1.0}, {NO_ROOTS,       0.0, 0.0}},
-        {{0.0, 1.0, -3.0}, {ONE_ROOT,       3.0, 0.0}},
-        {{1.0, 2.0,  1.0}, {ONE_ROOT,      -2.0, 0.0}},
-        {{1.0, 2.0,  4.0}, {NO_ROOTS,       0.0, 0.0}},
-        {{1.0, 5.0,  0.0}, {TWO_ROOTS,     -5.0, 0.0}}
+        {{0.0,  0.0,  0.0},  {INFINITY_ROOTS, 0.0,         0.0}},
+        {{0.0,  0.0,  1.0},  {NO_ROOTS,       0.0,         0.0}},
+        {{0.0,  1.0, -3.0},  {ONE_ROOT,       3.0,         0.0}},
+        {{1.0,  2.0,  1.0},  {ONE_ROOT,      -1.0,         0.0}},
+        {{1.0,  2.0,  4.0},  {NO_ROOTS,       0.0,         0.0}},
+        {{1.0,  5.0,  0.0},  {TWO_ROOTS,     -5.0,         0.0}},
+        {{2.25, 4.5,  2.25}, {ONE_ROOT,      -1.0,         0.0}},
+        {{2.0,  4.8,  0.0},  {TWO_ROOTS,     -2.4,         0.0}},
+        {{0.0,  2.71, 5.42}, {ONE_ROOT,      -2.0,         0.0}}
     };
 
     size_t quantity_test = sizeof(expected_answer_for_test) / sizeof(CoefficientesAndRoots);
     for ( size_t i = 0; i < quantity_test && result_test; ++i )
     {
-        result_test = test_solve_square(i, &expected_answer_for_test[i]);
+        result_test = test_solve_square(i + 1, &expected_answer_for_test[i]);
     }
+    if (result_test)
+        puts("Success\n");
 }
 
 static bool test_solve_square(int number_test, const CoefficientesAndRoots *expected_answer_for_test)
 {
     Roots roots = {NO_ROOTS, 0.0, 0.0};
 
-    assert(expected_answer_for_test != NULL);
-    assert(comprasion_roots(&roots, &expected_answer_for_test->roots) != -1);
+    assert(expected_answer_for_test != NULL, "NULLPTR");
+    assert(comprasion_roots(&roots, &expected_answer_for_test->roots) != -1, "Error comparison");
 
     solve_square(&expected_answer_for_test->coefficientes, &roots);
     if ( !comprasion_roots(&roots, &expected_answer_for_test->roots) )
     {
-        printf("Error in %d test.\n Expected: ", number_test);
+        printf("Error in %d test.\nExpected: ", number_test);
         output_roots(&expected_answer_for_test->roots);
         puts("Real: ");
         output_roots(&roots);
@@ -71,7 +76,9 @@ static bool test_solve_square(int number_test, const CoefficientesAndRoots *expe
 
 static int comprasion_roots(const Roots *roots_1, const Roots *roots_2)
 {
-    assert(roots_1 != NULL && roots_2 != NULL);
+    assert(roots_1 != NULL, "NULLPTR")
+    assert(roots_2 != NULL, "NULLPTR");
+
     if ( roots_1->number_of_roots != roots_2->number_of_roots)
         return 0;
 

@@ -1,8 +1,8 @@
 #include "solve_square.h"
 #include "comparison_double.h"
+#include "my_assert.h"
 
 #include <stdlib.h>
-#include <assert.h>
 #include <stdio.h>
 #include <math.h>
 
@@ -27,6 +27,12 @@ static void solve_standart_square(const Coefficientes *coefficientes, Roots *roo
 static double receive_coefficient();
 
 /*!
+¬водит число с командной строки в пам€ть компьютера
+\return „исло, введенное пользователем с клавиатуры
+*/
+static void receive_coefficient_from_command_line(char *argv, double *coefficient);
+
+/*!
 —читывает символы из стандартного потока ввода до тех пор,
 пока не встретит символ, наход€щийс€ в передаваемой строке.
 \param[in] s ”казатель на передаваемую строку
@@ -36,7 +42,9 @@ static int promotes_input(char *s);
 
 void solve_square(const Coefficientes *coefficientes, Roots *roots)
 {
-    assert(&roots != NULL);
+    assert(coefficientes != NULL, "NULLPTR");
+    assert(roots != NULL, "NULLPTR");
+
     if ( comprasion_with_zero(EPSILON, coefficientes->a) == 0 )
     {
         solve_linal(coefficientes, roots);
@@ -49,8 +57,10 @@ void solve_square(const Coefficientes *coefficientes, Roots *roots)
 
 static void solve_linal(const Coefficientes *coefficientes, Roots *roots)
 {
-    assert(coefficientes != NULL && roots != NULL);
-    assert(comprasion_with_zero(EPSILON, coefficientes->a) == 0);
+    assert(coefficientes != NULL, "NULLPTR");
+    assert(roots != NULL, "NULLPTR");
+    assert(comprasion_with_zero(EPSILON, coefficientes->a) == 0, "Error comparison");
+
     if ( comprasion_with_zero(EPSILON, coefficientes->b) == 0 )
     {
         if ( comprasion_with_zero(EPSILON, coefficientes->c) == 0 )
@@ -71,7 +81,9 @@ static void solve_linal(const Coefficientes *coefficientes, Roots *roots)
 
 static void solve_standart_square(const Coefficientes *coefficientes, Roots *roots)
 {
-    assert(coefficientes != NULL && roots != NULL);
+    assert(coefficientes != NULL, "NULLPTR");
+    assert(roots != NULL, "NULLPTR");
+
     double D = 1 - 4 * coefficientes->a * coefficientes->c / (coefficientes->b * coefficientes->b);
     if ( comprasion_with_zero(EPSILON, D) == -1 )
     {
@@ -96,9 +108,9 @@ static void solve_standart_square(const Coefficientes *coefficientes, Roots *roo
 
 static double receive_coefficient()
 {
-    int result_scanf;
-    int number_unread_symbols;
-    double scan;
+    int result_scanf = 0;
+    int number_unread_symbols = 1;
+    double scan = 0.0;
     char s[] = "\n";
     while ( number_unread_symbols > 0 )
     {
@@ -114,14 +126,29 @@ static double receive_coefficient()
             number_unread_symbols += promotes_input(s);
         }
         if ( number_unread_symbols > 0 )
-            puts("Error. You must enter a number");
+            puts("Error. You must enter a number\n");
     }
     return scan;
 }
 
+static void receive_coefficient_from_command_line(char* argv, double *coefficient)
+{
+    int result_sscanf = 0;
+    result_sscanf = sscanf(argv, "%lf", coefficient);
+    assert(result_sscanf != 0, "Error in Flag\n");
+}
+
+void enter_coefficient_from_command_line(char **argv, Coefficientes *coefficient)
+{
+    receive_coefficient_from_command_line(*argv, &coefficient->a);
+    receive_coefficient_from_command_line(*(argv + 1), &coefficient->b);
+    receive_coefficient_from_command_line(*(argv + 2), &coefficient->c);
+}
+
 void enter_coefficients(Coefficientes *coefficientes)
 {
-    assert(coefficientes != NULL);
+    assert(coefficientes != NULL, "NULLPTR");
+
     puts("Please enter the coefficient a");
     coefficientes->a = receive_coefficient();
     puts("Please enter the coefficient b");
@@ -132,30 +159,32 @@ void enter_coefficients(Coefficientes *coefficientes)
 
 void output_roots(const Roots *roots)
 {
-    assert(roots != NULL);
+    assert(roots != NULL, "NULLPTR");
+
     switch (roots->number_of_roots)
     {
         case NO_ROOTS:
-            puts("This equation has no roots");
+            puts("This equation has no roots\n");
             break;
         case INFINITY_ROOTS:
-            puts("Any number is the root of this equation");
+            puts("Any number is the root of this equation\n");
             break;
         case ONE_ROOT:
-            printf("This equation has one root: %lf", roots->x1);
+            printf("This equation has one root: %lf\n", roots->x1);
             break;
         case TWO_ROOTS:
-            printf("This equation has two root\nThe first root: %lf\nThe second root: %lf", roots->x1, roots->x2);
+            printf("This equation has two root\nThe first root: %lf\nThe second root: %lf\n", roots->x1, roots->x2);
             break;
         default:
-            puts("Error");
+            fprintf(stderr, "Error output\n");
             break;
     }
 }
 
 static int promotes_input(char *s)
 {
-    assert(s != NULL);
+    assert(s != NULL, "NULLPTR");
+
     int symbol = 0;
     bool is_symbol_not_found = true;
     int i = 0;

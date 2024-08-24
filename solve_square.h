@@ -32,6 +32,11 @@ struct Roots
 void enter_coefficients(Coefficientes *coefficientes);
 
 /*!
+Вводит коэффиценты квадратного уравнения в память компьютера через командную строку
+\param[in] coefficientes  Коэффиценты квадратного уравнения
+*/
+void enter_coefficient_from_command_line(char** argv, Coefficientes *coefficient);
+/*!
 Выводит корни квадратного уравнения в поток стандартного вывода
 \param[out] roots Корни квадратного уравнения
 */

@@ -1,6 +1,6 @@
 #include "comparison_double.h"
+#include "my_assert.h"
 
-#include <assert.h>
 #include <stdlib.h>
 
 int comprasion_with_zero(double epsilon, double a)
