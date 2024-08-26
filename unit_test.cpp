@@ -23,17 +23,19 @@ static bool test_solve_square(const CoefficientesAndRoots *expected_answer_for_t
 Сравнивает корни квадратного уравнения
 \param[out] roots_1 Корни первого уравнения
 \param[out] roots_2 Корни второго уравнения
-\return Если корни равны - 0, не равны - 1, при ошибке входных параметров -1
+\return Если корни равны - 0, не равны - 1, при ошибке входных параметров обрывает программу
 */
 static int comprasion_roots(const Roots *roots_1, const Roots *roots_2);
 
-void unit_test_solve_square()
+SolveSquareError unit_test_solve_square(const char* filename)
 {
     bool result_test = true;
-    const char* filename = (const char*)"unit_test.txt";
-    FILE *fp = fopen(filename, "r");;
-    CoefficientesAndRoots expected_answer_for_test = {{0.0, 0.0, 0.0}, {NO_ROOTS, 0.0, 0.0}};
-    Roots roots = {NO_ROOTS, 0.0, 0.0};
+    FILE *fp = fopen(filename, "r");
+    if ( fp == NULL )
+        return SOLVE_SQUARE_ERROR_NO_FILE_WHITH_UNIT_TESTS;
+
+    CoefficientesAndRoots expected_answer_for_test = {};
+    Roots roots = {};
 
     for ( int number_test = 0; fscanf(fp, "%lf", &(expected_answer_for_test.coefficientes.a)) != EOF; ++number_test )
     {
@@ -56,12 +58,12 @@ void unit_test_solve_square()
         }
     }
     fclose(fp);
+    return SOLVE_SQUARE_ERROR_NO_ERROR;
 }
 
 static bool test_solve_square(const CoefficientesAndRoots *expected_answer_for_test, Roots* roots)
 {
     assert(expected_answer_for_test != NULL, "NULLPTR");
-    assert(comprasion_roots(roots, &expected_answer_for_test->roots) != -1, "Error comparison");
 
     solve_square(&expected_answer_for_test->coefficientes, roots);
     if ( !comprasion_roots(roots, &expected_answer_for_test->roots) )
@@ -103,6 +105,7 @@ static int comprasion_roots(const Roots *roots_1, const Roots *roots_2)
 
             break;
         default:
+            assert(false, "Error in comparison. Unreachable");
             return -1;
             break;
     }

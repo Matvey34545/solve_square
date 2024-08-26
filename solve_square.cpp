@@ -6,31 +6,33 @@
 #include <stdio.h>
 #include <math.h>
 
-/*!
-Решает линейное уравнение
-\param[out] Коэффиценты линейного уравнения
-\param[in] roots Корни линейного уравнения
-*/
+/**
+ * Решает линейное уравнение
+ * @param [out] Коэффиценты линейного уравнения
+ * @param [in] roots Корни линейного уравнения
+ */
 static void solve_linal(const Coefficientes *coefficientes, Roots *roots);
 
 /*!
 Решает квадратное уравнение с ненулевым старшим коэффицентом
-\param[out] coefficientes Коэффиценты квадратного уравнения
-\param[in] roots Корни уравнения
+\param [out] coefficientes Коэффиценты квадратного уравнения
+\param [in] roots Корни уравнения
 */
 static void solve_standart_square(const Coefficientes *coefficientes, Roots *roots);
 
 /*!
-Вводит число с клавиатуры в память компьютера
-\return Число, введенное пользователем с клавиатуры
+ * Вводит число с клавиатуры в память компьютера
+ \return Число, введенное пользователем с клавиатуры
 */
 static double receive_coefficient();
 
 /*!
 Вводит число с командной строки в память компьютера
-\return Число, введенное пользователем с клавиатуры
+\param[in] coefficient Коэффиценты квадратного уравнения
+\param[out] Командная строка
+\return Сообщение об ошибке
 */
-static void receive_coefficient_from_command_line(char *argv, double *coefficient);
+static SolveSquareError receive_coefficient_from_command_line(char *argv, double *coefficient);
 
 /*!
 Считывает символы из стандартного потока ввода до тех пор,
@@ -131,18 +133,34 @@ static double receive_coefficient()
     return scan;
 }
 
-static void receive_coefficient_from_command_line(char* argv, double *coefficient)
+static SolveSquareError receive_coefficient_from_command_line(char* argv, double *coefficient)
 {
+    assert(argv != NULL, "NULLPTR");
+    assert(coefficient != NULL, "NULLPTR");
+
     int result_sscanf = 0;
     result_sscanf = sscanf(argv, "%lf", coefficient);
-    assert(result_sscanf != 0, "Error in Flag\n");
+    if (result_sscanf == 0)
+        return SOLVE_SQUARE_ERROR_FLAG;
+
+    return SOLVE_SQUARE_ERROR_NO_ERROR;
 }
 
-void enter_coefficient_from_command_line(char **argv, Coefficientes *coefficient)
+SolveSquareError enter_coefficient_from_command_line(char **argv, Coefficientes *coefficient)
 {
-    receive_coefficient_from_command_line(*argv, &coefficient->a);
-    receive_coefficient_from_command_line(*(argv + 1), &coefficient->b);
-    receive_coefficient_from_command_line(*(argv + 2), &coefficient->c);
+    SolveSquareError solve_square_error = receive_coefficient_from_command_line(*argv, &coefficient->a);
+    if ( solve_square_error != SOLVE_SQUARE_ERROR_NO_ERROR )
+        return SOLVE_SQUARE_ERROR_FLAG;
+
+    solve_square_error = receive_coefficient_from_command_line(*(argv + 1), &coefficient->b);
+    if ( solve_square_error != SOLVE_SQUARE_ERROR_NO_ERROR )
+        return SOLVE_SQUARE_ERROR_FLAG;
+
+    solve_square_error = receive_coefficient_from_command_line(*(argv + 2), &coefficient->c);
+    if ( solve_square_error != SOLVE_SQUARE_ERROR_NO_ERROR )
+        return SOLVE_SQUARE_ERROR_FLAG;
+
+    return SOLVE_SQUARE_ERROR_NO_ERROR;
 }
 
 void enter_coefficients(Coefficientes *coefficientes)
@@ -176,7 +194,7 @@ void output_roots(const Roots *roots)
             printf("This equation has two root\nThe first root: %lf\nThe second root: %lf\n", roots->x1, roots->x2);
             break;
         default:
-            fprintf(stderr, "Error output\n");
+            assert(true, "Error output\n");
             break;
     }
 }

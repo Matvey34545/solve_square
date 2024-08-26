@@ -1,7 +1,7 @@
 #ifndef PRINTF_COLOR
 #define PRINTF_COLOR
 
-
+#include <stdio.h>
 //Regular text
 #define BLK "\e[0;30m"
 #define RED "\e[0;31m"

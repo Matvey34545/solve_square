@@ -1,7 +1,7 @@
 #ifndef MY_ASSERT
 #define MY_ASSERT
 #include "printf_color.h"
-
+#include <stdio.h>
 
 #define assert(x, STR) if ((x) == 0)\
     {                          \
@@ -11,9 +11,9 @@
         abort();\
     }
 
-#define SOFT_ASSERT(x, STR, ...) if ((x) == 0)\
+#define soft_assert(x, STR, ...) if ((x) == 0)\
     {                          \
-        fprintf_(stderr, "%s\nIn line: %d\n"\
+        fprintf(stderr, "%s\nIn line: %d\n"\
         "In file: %s\nIn function: %s\n",\
         STR, __LINE__, __FILE__, __FUNCTION__);\
         __VA_LIST__;\
